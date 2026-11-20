@@ -1,0 +1,113 @@
+/* Presentation-only override for the V2 Tamil Nadu preview. */
+:root {
+  --bg-color: #0b1525;
+  --text-primary: #f8d37b;
+  --text-warning: #ffbf45;
+  --text-danger: #ef5c4e;
+  --text-success: #a0efb5;
+  --text-fuel: #ffa955;
+}
+body {
+  background: radial-gradient(ellipse at 50% 35%, #244a53, #0b1a28 52%, #07121b);
+}
+#game-container {
+  border: 5px solid #172535;
+  outline: 3px solid #dda75d;
+  box-shadow: 0 0 0 8px #142539, 0 20px 65px #000b;
+}
+.hud-top {
+  background: linear-gradient(#10283c,#102031);
+  border-bottom: 4px solid #d49b46;
+  color: #fff3d5;
+  font-size: .75rem;
+  text-shadow: 2px 2px #000;
+}
+#garage-screen,
+#game-over-screen,
+#level-complete-screen {
+  background: radial-gradient(circle at top, #163f4e 0, #0d2535 45%, #081320 100%);
+}
+h1 { color: #ffd36a; text-shadow: 3px 3px #482c23; }
+.screen button {
+  border-color: #eab969;
+  color: #ffe0a0;
+  background: #0e2436;
+  box-shadow: 3px 4px #050e18;
+}
+.screen button:hover:not(:disabled) { background: #eab969; color: #112131; }
+.v2-play-now {
+  display: block;
+  width: 100%;
+  max-width: 450px;
+  min-height: 72px;
+  margin: 12px auto 24px;
+  font-size: 1rem;
+  line-height: 1.5;
+  background: #ffd06a !important;
+  color: #142132 !important;
+  box-shadow: 4px 5px #020b14, inset 0 -4px #c88733 !important;
+}
+.ride-time-toggle {
+  width:100%;max-width:450px;margin:10px auto 4px;
+  padding:14px 12px!important;border:2px solid #76ba8f!important;
+  color:#ddf5d0!important;background:#11322b!important;
+  font-size:.75rem!important;line-height:1.5!important;
+}
+#locality-chip {
+  position:absolute;top:113px;left:12px;max-width:48%;
+  padding:5px 8px;background:rgba(12,31,38,.86);
+  border:1px solid #deb76f;border-left:3px solid #e1c477;
+  color:#ffdf98;font:700 11px/1.35 monospace;
+  text-shadow:1px 1px #000;letter-spacing:.15px;
+  pointer-events:none;
+}
+#ride-mode-hud {
+  position:absolute;top:110px;right:9px;
+  background:rgba(10,29,40,.83);color:#ffe9ba;
+  border:1px solid #deb76f;border-radius:3px;
+  font:700 10px monospace;padding:5px;cursor:pointer;
+  pointer-events:auto;z-index:30;box-shadow:none;
+}
+#ride-mode-hud:hover{background:#354c58;color:#fff;}
+#route-choice:not([hidden]) {
+  display:flex;position:absolute;z-index:40;
+  top:160px;left:5%;width:90%;box-sizing:border-box;
+  flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;
+  padding:9px;background:rgba(10,28,38,.94);
+  border:2px solid #edc477;color:#ffe7aa;
+  font:700 11px/1.5 monospace;text-align:center;
+  box-shadow:0 6px 15px #050d19a8;pointer-events:auto;
+}
+#route-choice div {width:100%;}
+#route-choice button {flex:1;min-width:120px;padding:10px 6px;
+  background:#164a43;border:2px solid #f2c471;color:#fff2c8;
+  font:700 11px/1.3 monospace;touch-action:manipulation;cursor:pointer;}
+.ind-box { background: #102339ee; border-color: #d6a75a; }
+.ind-box.active { border-color: #ffd353; background: #544222; }
+#v2-road-banner {
+  position: absolute;
+  bottom: 104px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 66%;
+  max-width: 88%;
+  padding: 9px 12px;
+  background: #f4b934;
+  border: 4px solid #20232e;
+  outline: 2px solid #ffe08e;
+  box-shadow: 4px 5px #030b16;
+  color: #1d2634;
+  text-shadow: none;
+  text-align: center;
+  font-size: .78rem;
+  line-height: 1.5;
+  pointer-events: none;
+}
+@media(max-width:600px){
+  .hud-top{padding:.6rem;font-size:.62rem}
+  #v2-road-banner{font-size:.65rem;bottom:104px}
+  #locality-chip{font-size:9px;top:108px;max-width:48%;padding:4px 6px}
+  #ride-mode-hud{font-size:9px;top:107px;right:7px;padding:5px}
+  #route-choice:not([hidden]){top:147px;left:2%;width:96%;gap:4px;padding:7px;font-size:10px}
+  #route-choice button{font-size:10px;min-width:95px}
+}

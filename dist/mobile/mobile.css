@@ -1,0 +1,115 @@
+/* Mobile-only presentation. The desktop route and driving rules are untouched. */
+:root { --mobile-controls-height: 178px; }
+html, body { width:100%; height:100%; overscroll-behavior:none; }
+body { align-items:stretch; background:#081522; }
+#game-container {
+  width:100%; max-width:480px; height:100dvh; max-height:100dvh;
+  margin:auto; border:0; outline:0; box-shadow:none;
+}
+#game-canvas {
+  width:100%; height:calc(100% - var(--mobile-controls-height) - env(safe-area-inset-bottom));
+  display:block; image-rendering:pixelated;
+}
+.screen { padding:18px 12px 24px; }
+#garage-screen, #game-over-screen, #level-complete-screen {
+  -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+}
+h1 { font-size:clamp(16px, 5vw, 25px); margin-top:12px; margin-bottom:18px; }
+h2 { font-size:13px; line-height:1.7; }
+h3 { font-size:11px; line-height:1.7; }
+p { font-size:9px; line-height:1.85; }
+button { font-size:10px; line-height:1.6; padding:12px 10px; }
+.v2-play-now { min-height:62px; font-size:12px; margin:10px auto 14px; }
+.ride-time-toggle { font-size:10px!important; }
+.scroll-hint { font-size:10px; line-height:1.7; }
+.instruction-manual { max-width:100%; padding-left:10px; }
+.instruction-manual p { font-size:9px; }
+.mobile-tip {
+  font:700 12px/1.6 monospace; text-align:center; color:#ffc970;
+  background:#102b37; border:2px solid #b98447; padding:10px 6px;
+}
+#vehicle-name { font-size:11px!important; line-height:1.8; }
+#vehicle-stats { font-size:9px!important; }
+.btn-group { gap:8px; }
+.btn-group button { min-width:0; white-space:normal; overflow-wrap:anywhere; }
+#map-list { width:100%; }
+#map-list button { width:100%; line-height:1.8; }
+.garage-preview { width:185px; height:140px; }
+
+#hud-screen { overflow:hidden; }
+.hud-top {
+  padding:10px 11px; font-size:clamp(9px, 2.5vw, 12px);
+  line-height:1.25; min-height:66px;
+}
+#fuel-container { width:clamp(75px, 26vw, 130px); height:12px; }
+#fuel-label { font-size:9px; top:-16px; }
+#strike-ui { top:88px; font-size:10px; max-width:70%; }
+#lane-strike-ui { top:106px; font-size:10px; max-width:70%; }
+#locality-chip { top:120px; left:7px; max-width:62%; font-size:10px; }
+#ride-mode-hud { top:116px; right:7px; min-height:35px; }
+#traffic-light-hud {
+  top:167px; right:9px; transform:scale(.77); transform-origin:top right;
+}
+#messages-area { top:30%; gap:4px; padding:0 10px; }
+.floating-message { font-size:13px; line-height:1.5; }
+.floating-message.penalty { font-size:14px; }
+.hud-indicators { display:none; }
+#v2-road-banner { bottom:calc(var(--mobile-controls-height) + 14px); font-size:10px; }
+#route-choice:not([hidden]) { top:157px; width:96%; left:2%; }
+#route-choice button { min-height:47px; }
+
+#mobile-controls {
+  position:absolute; bottom:0; left:0; right:0;
+  height:calc(var(--mobile-controls-height) + env(safe-area-inset-bottom));
+  padding:7px 8px calc(8px + env(safe-area-inset-bottom));
+  display:grid; grid-template-columns:1fr 1.52fr 1fr;
+  grid-template-rows:56px minmax(0,1fr); gap:7px;
+  background:linear-gradient(180deg,#132b3b,#061725 20%);
+  border-top:3px solid #c99b57;
+  box-shadow:0 -3px 15px #061725aa;
+  z-index:60; pointer-events:auto; touch-action:none;
+  -webkit-user-select:none; user-select:none;
+}
+#mobile-controls .mobile-control {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  margin:0; padding:4px 2px; min-width:0; min-height:0;
+  border:2px solid #d6ad6b; border-radius:8px;
+  background:#193443; color:#ffe1a0;
+  box-shadow:inset 0 -4px #0a1d28, 0 2px #030a10;
+  font:700 clamp(9px,2.3vw,12px)/1.55 'Press Start 2P', monospace;
+  text-align:center; letter-spacing:0;
+  touch-action:none; -webkit-touch-callout:none;
+  -webkit-user-select:none; user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+#mobile-controls .mobile-control small {
+  color:#a8c4ca; font:700 10px/1.4 monospace;
+}
+#mobile-controls .mobile-control.signal { border-color:#a5b8cc; color:#e2f6ff; }
+#mobile-controls .mobile-control.brake { border-color:#f16e64; color:#ffb0a4; background:#42262c; }
+#mobile-controls .mobile-control.steer { font-size:20px; }
+#mobile-controls .mobile-control.accelerate {
+  border-color:#6ed2a3; background:#164a46; color:#ceffe4;
+  font-size:clamp(11px,2.8vw,14px); line-height:1.8;
+}
+#mobile-controls .mobile-control.held {
+  background:#e7ba68; color:#102231;
+  transform:translateY(2px); box-shadow:inset 0 2px #85602d;
+}
+#mobile-controls .mobile-control.signal[aria-pressed='true'] {
+  border-color:#ffcf4b; background:#59461f; color:#fff3b2;
+  box-shadow:0 0 10px #ffc33188;
+}
+#mobile-controls .mobile-control.signal[aria-pressed='true'] small { color:#fff3b2; }
+#game-over-screen { justify-content:flex-start!important; padding-top:9vh; }
+#game-over-title { font-size:clamp(15px,4vw,23px)!important; }
+#game-over-reason { font-size:11px!important; line-height:1.7!important; }
+#smart-feedback-container p { font-size:10px; }
+#btn-try-again, #btn-restart { min-width:135px!important; }
+@media(max-height:670px) {
+  :root { --mobile-controls-height:152px; }
+  #mobile-controls { grid-template-rows:47px minmax(0,1fr); gap:5px; padding:5px 6px calc(5px + env(safe-area-inset-bottom)); }
+  #mobile-controls .mobile-control { font-size:9px; }
+  #mobile-controls .mobile-control.steer { font-size:17px; }
+  .hud-top { padding:8px; min-height:59px; }
+}
