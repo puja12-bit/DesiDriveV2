@@ -251,7 +251,8 @@
         }
 
         let GLOBAL_THUMP_ARR = null;
-        fetch('assets/royal-enfield.wav').then(r=>r.arrayBuffer()).then(b=>{GLOBAL_THUMP_ARR=b;}).catch(e=>{});
+        const BULLET_AUDIO_PATH = location.pathname.includes('/mobile/') ? '../assets/royal-enfield.wav' : 'assets/royal-enfield.wav';
+        fetch(BULLET_AUDIO_PATH).then(r=>{if(!r.ok) throw new Error('Engine audio unavailable'); return r.arrayBuffer();}).then(b=>{GLOBAL_THUMP_ARR=b;}).catch(e=>{});
 
         const AudioSys = {
             ctx: null,
