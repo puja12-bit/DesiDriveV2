@@ -62,6 +62,28 @@ const V2Traffic = (() => {
     return { x: staggered[Math.floor(random() * staggered.length)], isOpposite: !!opposite };
   }
 
+  function dividerChallenge(mapId, wave) {
+    const left = wave % 2 === 0;
+    const dividers = left ? [233, 366] : [366, 233];
+    if (mapId === 'offroad' || mapId === 'mumbai') {
+      const kind = mapId === 'offroad' ? 'hole' : 'bus';
+      // Alternate shoulders along the route so a fixed offset from the stripe
+      // cannot clear the whole sequence. Keep the center of the road open.
+      const sides = wave % 2 === 0 ? [-18, 18] : [18, -18];
+      return sides.flatMap(offset => dividers.map(x => ({
+        kind, x: x + (x < 300 ? offset : -offset)
+      })));
+    }
+    if (mapId === 'delhi') {
+      return dividers.map(x => ({
+        kind: 'car',
+        x: x < 300 ? x - 30 : x + 30,
+        mergeX: x < 300 ? x - 10 : x + 10
+      }));
+    }
+    return [];
+  }
+
   function trafficProfile(mapId, zone='') {
     if(mapId==='hyderabad') {
       if(zone==='gowlidoddy')return {intervalMs:315,maxVehicles:15};
@@ -134,6 +156,6 @@ const V2Traffic = (() => {
       : right - margin - (right - left - margin * 2) * progress;
   }
 
-  return { roadEdges, encounter, chooseLane, trafficProfile, vehicleKind,
+  return { dividerChallenge, roadEdges, encounter, chooseLane, trafficProfile, vehicleKind,
     cruisingSpeed, overtakingLane, opposingSignalState, crossingPosition };
 })();

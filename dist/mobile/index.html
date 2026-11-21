@@ -239,8 +239,8 @@
         </div>
     </div>
 
-    <script src="v2-traffic.js"></script>
-    <script src="v2-visuals.js?rev=2d18f5b"></script>
+    <script src="v2-traffic.js?rev=temple-playtest"></script>
+    <script src="v2-visuals.js?rev=temple-playtest"></script>
     <script>
         function gen(w, h, data, pal) {
             const c = document.createElement('canvas'); c.width=w; c.height=h; const x = c.getContext('2d');
@@ -685,6 +685,29 @@
                 return entity;
             }
 
+            stageDividerChallenge() {
+                if (this.p.logY < this.nextDividerChallenge) return;
+                const entries = V2Traffic.dividerChallenge(this.mapId, this.dividerWave);
+                if (!entries.length) {
+                    this.nextDividerChallenge = Infinity;
+                    return;
+                }
+                entries.forEach(({kind, x, mergeX}, index) => {
+                    const spacing = entries.length === 4 ? 230 : 300;
+                    const logY = this.p.logY + 760 + index * spacing;
+                    if (kind === 'hole') {
+                        this.em.push({t:'hole', x, logY, w:20, h:20, sp:SPRITES.hole});
+                    } else {
+                        const e = this.makeTrafficVehicle(kind, x, logY, false, .55);
+                        e.dividerChallenge = true;
+                        if (mergeX !== undefined) e.dividerMergeX = mergeX;
+                        this.em.push(e);
+                    }
+                });
+                this.dividerWave++;
+                this.nextDividerChallenge = this.p.logY + 2400;
+            }
+
             seedInitialTraffic() {
                 // The first commute starts populated, but all seeded vehicles
                 // are well ahead, staggered, and in their correct lane.
@@ -732,6 +755,9 @@
                 this.em = []; this.spawnTimer = 0; this.cattleCooldownMs = 5000;
                 this.trafficSpawnCount = 0;
                 this.seedInitialTraffic();
+                this.dividerWave = 0;
+                this.nextDividerChallenge = 240;
+                this.curbRideTime = 0;
                 this.lights = { timer: 5000, state: 'green', block: 4000 };
                 this.env = []; this.envSpawnTimer = 0;
                 this.delhiChaosTimer = 0; this.delhiStateTimer = 0; this.currentDelhiEvent = null;
@@ -994,6 +1020,22 @@
                     let minX = this.mapId === 'tamilnadu' ? 180 : 150;
                     let maxX = this.mapId === 'tamilnadu' ? 420 : 450;
                     if(p.x < minX) p.x=minX; if(p.x > maxX) p.x=maxX;
+                    if (this.mapId === 'tamilnadu') {
+                        const [left, right] = V2Traffic.roadEdges(this.mapId);
+                        const touchingCurb = p.x - p.w < left + 4 || p.x + p.w > right - 4;
+                        if (touchingCurb && p.speed > .5) {
+                            if (this.curbRideTime === 0) this.showCCText('CURB · MOVE BACK ONTO THE ROAD');
+                            p.speed = Math.min(p.speed, 4);
+                            this.curbRideTime += dt;
+                            if (this.curbRideTime >= 1200) {
+                                this.curbRideTime -= 1200;
+                                this.triggerLaneViolationFlash();
+                                if (!this.isPlaying) return;
+                            }
+                        } else if (!touchingCurb) {
+                            this.curbRideTime = 0;
+                        }
+                    }
                 }
 
                 if (this.mapId !== 'hills') {
@@ -1069,6 +1111,7 @@
                     else if (this.mapId === 'hills') this.env[i].x = this.env[i].baseEnvX + this.getCurveOffset(this.env[i].logY);
                 }
 
+                this.stageDividerChallenge();
                 this.cattleCooldownMs = Math.max(0, this.cattleCooldownMs - dt);
                 this.spawnTimer += dt;
                 const trafficZone = this.mapId === 'hyderabad'
@@ -1169,7 +1212,7 @@
                         let validEvents = [1, 2, 3, 4];
                         let activeEvt = validEvents[Math.floor(Math.random() * validEvents.length)];
                         
-                        let vehiclesAhead = this.em.filter(e => e.t === 'v' && e.logY > p.logY + 150);
+                        let vehiclesAhead = this.em.filter(e => e.t === 'v' && !e.dividerChallenge && e.logY > p.logY + 150);
                         
                         if (activeEvt === 1 && vehiclesAhead.length > 0) {
                             let candidates = vehiclesAhead.filter(e => e.sp === SPRITES.bike || e.sp === SPRITES.auto);
@@ -1246,6 +1289,11 @@
                         }
 
                         if (this.mapId === 'hills') e.x = e.laneX + this.getCurveOffset(e.logY);
+
+                        if (e.dividerMergeX !== undefined && e.logY - p.logY < 560) {
+                            const delta = e.dividerMergeX - e.x;
+                            e.x += Math.sign(delta) * Math.min(Math.abs(delta), .8 * dt / 16);
+                        }
 
                         if (e.chaosTag) {
                             if (e.chaosTag === 'lane_cut') {

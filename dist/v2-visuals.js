@@ -105,7 +105,7 @@ const V2Art = (() => {
   trafficRearAtlas.src = 'assets/v2/traffic-rear.png';
   indianVan.src = 'assets/v2/indian-delivery-van.webp';
   regionalCanopy.src = 'assets/v2/roadside-canopy-v3.webp';
-  roadsideAtlas.src = 'assets/v2/road-crossers.png';
+  roadsideAtlas.src = 'assets/v2/road-crossers.png?rev=original-v2';
   womanPedestrian.src = 'assets/v2/pedestrian-woman.webp';
   sidewalkMan.src = 'assets/v2/sidewalk-walker-man.webp';
   sidewalkWoman.src = 'assets/v2/sidewalk-walker-woman.webp';
@@ -239,13 +239,56 @@ const V2Art = (() => {
     ctx.restore();return true;
   }
 
+  function drawTempleFlowerScene(ctx, top, height, panelNumber) {
+    if (!sidewalkWoman.complete || !sidewalkWoman.naturalWidth) return;
+    const gate = {x: 92, y: top + height * .381};
+    const stall = {x: 146, y: top + height * .64};
+    if (stall.y < -80 || gate.y > 880) return;
+    const time = Date.now() / 1000 + panelNumber * 2;
+
+    function flowers(x, y, count, colors) {
+      for (let i = 0; i < count; i++) {
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.beginPath();
+        ctx.arc(x + (i % 6) * 3, y + Math.floor(i / 6) * 3, 2, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+    }
+
+    ctx.save();
+    ctx.fillStyle = '#784728';
+    ctx.fillRect(stall.x - 16, stall.y - 7, 34, 14);
+    flowers(stall.x - 13, stall.y - 4, 18, ['#fff4d0', '#fffdf1', '#dce5a1']);
+    flowers(stall.x + 5, stall.y - 4, 8, ['#ffb83f', '#f26f28', '#f9d25e']);
+    drawFootpathWalker(ctx, stall.x, stall.y - 27, 'woman', 0,
+      { scale: .66, jasmine: true, walking: false });
+
+    drawFootpathWalker(ctx, 158, stall.y + 27, 'man', 0,
+      { scale: .72, walking: false, tint: 'hue-rotate(145deg)' });
+    drawFootpathWalker(ctx, 142, gate.y + 12, 'woman', 0,
+      { scale: .76, jasmine: true, walking: false, tint: 'hue-rotate(50deg)' });
+
+    for (const [delay, gender, tint] of [
+      [0, 'woman', 'hue-rotate(315deg)'],
+      [7, 'man', 'hue-rotate(245deg)']
+    ]) {
+      const phase = ((time + delay) % 14 + 14) % 14;
+      if (phase >= 5) continue;
+      const step = Math.max(0, (phase - 1) / 4);
+      ctx.globalAlpha = Math.min(1, phase / .45, (5 - phase) / .8);
+      drawFootpathWalker(ctx, gate.x + 5 - step * 5, gate.y + 13 - step * 46, gender, delay,
+        { scale: .76, jasmine: gender === 'woman', walking: phase >= 1, tint });
+    }
+    ctx.restore();
+  }
+
   function drawRegionalStreet(ctx,world,mapId,logY) {
     const isMumbai=mapId==='mumbai';
     const left=isMumbai?100:182,right=isMumbai?500:418;
     const iw=world.naturalWidth,ih=world.naturalHeight;
     const h=ih*(600/iw),travel=h-800;
     // Mumbai's road surface is a world-space reference for traffic motion.
-    const scroll = Math.max(0, logY) * (isMumbai ? 1 : .34);
+    const scroll = Math.max(0, logY);
     const firstTop = -travel + (scroll % h);
     ctx.save();ctx.imageSmoothingEnabled=true;
     for(let tile=-2;tile<=1;tile++) {
@@ -255,13 +298,17 @@ const V2Art = (() => {
       // Both new regional scenes have constant-width road geometry. Never
       // invert temples or buildings: only seamless asphalt may mirror.
       const sourceLeft=isMumbai?275:285,sourceRight=isMumbai?660:653;
-      ctx.drawImage(world,0,0,sourceLeft,ih,0,y,left,h);
-      ctx.drawImage(world,sourceRight,0,iw-sourceRight,ih,right,y,600-right,h);
+      const panel = ((Math.floor(scroll / h) - tile) % 3 + 3) % 3;
+      const leftStart = isMumbai || panel === 0 ? 0 : ih * (panel === 1 ? .39 : .58);
+      const rightStart = isMumbai || panel === 0 ? 0 : ih * (panel === 1 ? .24 : .46);
+      ctx.drawImage(world,0,leftStart,sourceLeft,ih-leftStart,0,y,left,h);
+      ctx.drawImage(world,sourceRight,rightStart,iw-sourceRight,ih-rightStart,right,y,600-right,h);
       ctx.save();
       if(flip){ctx.translate(0,y+h);ctx.scale(1,-1);}
       ctx.drawImage(world,sourceLeft,0,sourceRight-sourceLeft,ih,
         left,flip?0:y,right-left,h);
       ctx.restore();
+      if (!isMumbai && panel === 0) drawTempleFlowerScene(ctx, y, h, Math.floor(scroll / h) - tile);
       if(isMumbai) {
         // Bus shelters in the painting now have actual waiting commuters.
         for(const sourceY of [620,1100]) {
@@ -532,22 +579,34 @@ const V2Art = (() => {
     }
   }
 
-  function drawFootpathWalker(ctx, x, y, gender, phase) {
+  function drawFootpathWalker(ctx, x, y, gender, phase, {scale = 1, jasmine = false, walking = true, tint = "none"} = {}) {
     const sprite=gender==='woman'?sidewalkWoman:sidewalkMan;
     if(!sprite.complete||!sprite.naturalWidth)return;
-    const w=47,h=77,upper=.71;
+    const w=47*scale,h=77*scale,upper=.71;
     ctx.save();ctx.translate(x,y);ctx.imageSmoothingEnabled=true;
+    ctx.filter = tint;
     // The upper body stays anchored while each leg takes the opposite step.
     // Moving both legs together looked like sliding or hopping in place.
     ctx.drawImage(sprite,0,0,sprite.naturalWidth,sprite.naturalHeight*upper,
       -w/2,-h/2,w,h*upper);
-    const gait=Math.sin(Date.now()/205+phase*1.8)*3.1;
+    const gait=walking ? Math.sin(Date.now()/205+phase*1.8)*3.1*scale : 0;
     for(const side of [0,1]) {
       ctx.save();ctx.beginPath();
       ctx.rect(side ? 0 : -w/2,-h/2+h*upper,w/2,h*(1-upper)+4);
       ctx.clip();
       ctx.drawImage(sprite,-w/2,-h/2+(side ? gait : -gait),w,h);
       ctx.restore();
+    }
+    if (jasmine) {
+      ctx.filter = 'none';
+      for (let bead = -4; bead <= 4; bead++) {
+        const x = bead * 1.7 * scale;
+        const y = -h * .32 + (4 - Math.abs(bead)) * .62 * scale;
+        ctx.fillStyle = '#433225';
+        ctx.beginPath(); ctx.arc(x, y, 3.1 * scale, 0, 2 * Math.PI); ctx.fill();
+        ctx.fillStyle = bead % 2 ? '#ffffff' : '#fff1c9';
+        ctx.beginPath(); ctx.arc(x, y, 2.4 * scale, 0, 2 * Math.PI); ctx.fill();
+      }
     }
     ctx.restore();
   }
