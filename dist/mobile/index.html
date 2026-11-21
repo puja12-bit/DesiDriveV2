@@ -133,10 +133,8 @@
         <div id="ui-layer">
             
             <div id="garage-screen" class="screen">
-                <h1 style="margin-bottom:0.5rem">DESIDRIVE V2</h1>
-                <p class="center-p" style="text-align:center">SIX INDIAN ROADS · PIXEL ARCADE</p>
+                <h1 style="margin-bottom:0.5rem">DESIDRIVE</h1>
                 <button id="time-toggle" class="ride-time-toggle" type="button" aria-pressed="false">☀ DAY RIDE · SWITCH TO NIGHT</button>
-                <button id="v2-play-now" class="v2-play-now">PLAY HYDERABAD NOW</button>
 
                 <p class="mobile-tip">📱 MOBILE RIDE · HOLD TO DRIVE · TAP TO SIGNAL</p>
                 
@@ -1717,12 +1715,6 @@
             document.getElementById('route-city').onclick = () => g.chooseHyderabadRoute('city');
             document.getElementById('route-orr').onclick = () => g.chooseHyderabadRoute('orr');
             const gui = { garage: document.getElementById('garage-screen'), ov: document.getElementById('game-over-screen') };
-            document.getElementById('v2-play-now').onclick = () => {
-                currMapId = 'hyderabad';
-                document.getElementById('hud-screen').classList.remove('hidden');
-                gui.garage.classList.add('hidden');
-                g.startGame(currV, currMapId);
-            };
 
             function rUI() {
                 document.getElementById('global-score-ui').innerText = GLOBAL_SCORE;

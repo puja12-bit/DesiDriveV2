@@ -95,6 +95,12 @@ const V2Art = (() => {
   worlds.mumbai.src = 'assets/v2/mumbai-world.webp';
   worlds.hills.src = 'assets/v2/hills-world.webp';
   rider.src = 'assets/v2/rider.png';
+  const usableTrafficAtlases = new WeakSet();
+  for (const atlas of [trafficAtlas, trafficRearAtlas]) {
+    atlas.addEventListener('load', () => {
+      if (hasCompleteTrafficArt(atlas)) usableTrafficAtlases.add(atlas);
+    });
+  }
   trafficAtlas.src = 'assets/v2/traffic-sprites.png';
   trafficRearAtlas.src = 'assets/v2/traffic-rear.png';
   indianVan.src = 'assets/v2/indian-delivery-van.webp';
@@ -677,6 +683,30 @@ const V2Art = (() => {
     dog: [1, 1, 67, 54]
   };
 
+  function hasCompleteTrafficArt(atlas) {
+    const canvas = document.createElement('canvas');
+    // Sample the lower half of every cell. A partly decoded PNG can report
+    // its original dimensions while returning transparent pixels below the break.
+    canvas.width = 24;
+    canvas.height = 16;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return false;
+    ctx.drawImage(atlas, 0, 0, canvas.width, canvas.height);
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    for (let row = 0; row < 2; row++) {
+      for (let col = 0; col < 3; col++) {
+        let visiblePixels = 0;
+        for (let y = row * 8 + 4; y < row * 8 + 8; y++) {
+          for (let x = col * 8; x < col * 8 + 8; x++) {
+            if (pixels[(y * canvas.width + x) * 4 + 3] > 64) visiblePixels++;
+          }
+        }
+        if (visiblePixels < 2) return false;
+      }
+    }
+    return true;
+  }
+
   function trafficSilhouette(ctx, kind, dw, dh) {
     // Mask out the atlas's decorative export matte so a rectangle never
     // appears on the road. Coordinates are fractions of the draw rectangle.
@@ -704,10 +734,10 @@ const V2Art = (() => {
     // front-view atlas upside down made cars and bikes look like insects.
     const customVan = isVehicle && kind === 'van' && indianVan.complete && indianVan.naturalWidth;
     const atlas = customVan ? indianVan : isVehicle
-      ? (!e.isOpposite && trafficRearAtlas.complete && trafficRearAtlas.naturalWidth
-          ? trafficRearAtlas : trafficAtlas)
+      ? (e.isOpposite ? trafficAtlas : trafficRearAtlas)
       : roadsideAtlas;
     if (!atlas.complete || !atlas.naturalWidth) return false;
+    if (isVehicle && !customVan && !usableTrafficAtlases.has(atlas)) return false;
     const cell = (isVehicle ? trafficCells : crossersCells)[kind];
     if (!cell) return false;
     const [col, row, cellW, cellH] = cell;
