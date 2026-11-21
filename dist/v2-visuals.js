@@ -221,7 +221,8 @@ const V2Art = (() => {
     // Mumbai, Tamil Nadu, Delhi and MP used to freeze after 780 world units:
     // the road dashes moved, but the city was permanently stationary.
     // Keep cycling the painted blocks behind road traffic for the whole run.
-    const scroll = Math.max(0,logY)*.34;
+    // Match the world-to-screen scale used for traffic and road markings.
+    const scroll = Math.max(0, logY);
     const firstTop=-travel+(scroll%h);
     for(let tile=-2;tile<=1;tile++) {
       const drawY=firstTop+tile*h;
@@ -243,7 +244,9 @@ const V2Art = (() => {
     const left=isMumbai?100:182,right=isMumbai?500:418;
     const iw=world.naturalWidth,ih=world.naturalHeight;
     const h=ih*(600/iw),travel=h-800;
-    const firstTop=-travel+(Math.max(0,logY)*.34%h);
+    // Mumbai's road surface is a world-space reference for traffic motion.
+    const scroll = Math.max(0, logY) * (isMumbai ? 1 : .34);
+    const firstTop = -travel + (scroll % h);
     ctx.save();ctx.imageSmoothingEnabled=true;
     for(let tile=-2;tile<=1;tile++) {
       const y=firstTop+tile*h;
