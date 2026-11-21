@@ -93,7 +93,7 @@ const V2Art = (() => {
   worlds.offroad.src = 'assets/v2/mp-world.webp';
   worlds.delhi.src = 'assets/v2/delhi-world.webp';
   worlds.mumbai.src = 'assets/v2/mumbai-world.webp';
-  worlds.hills.src = 'assets/v2/hills-world.webp';
+  worlds.hills.src = 'assets/v2/hills-world.webp?rev=3c9a9db';
   rider.src = 'assets/v2/rider.png';
   const usableTrafficAtlases = new WeakSet();
   for (const atlas of [trafficAtlas, trafficRearAtlas]) {
